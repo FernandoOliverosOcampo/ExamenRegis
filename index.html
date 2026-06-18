@@ -339,6 +339,7 @@
   ];
 
     let preguntasSeleccionadas = [];
+    let indicesOriginales = []; // Guardar los índices originales de las preguntas seleccionadas
     const NUMERO_PREGUNTAS = 20;
 
     // Función para mezclar array (Fisher-Yates shuffle)
@@ -354,6 +355,11 @@
     function seleccionarPreguntasAleatorias() {
       const preguntasMezcladas = mezclarArray([...todasLasPreguntas]);
       preguntasSeleccionadas = preguntasMezcladas.slice(0, NUMERO_PREGUNTAS);
+      
+      // Guardar los índices originales de las preguntas seleccionadas
+      indicesOriginales = preguntasSeleccionadas.map(p => 
+        todasLasPreguntas.findIndex(tp => tp.pregunta === p.pregunta)
+      );
     }
 
     // Función para renderizar las preguntas
@@ -578,9 +584,9 @@
         const valor = respuesta ? parseInt(respuesta.value) : 0;
         total += valor;
         
-        // Guardar respuesta del usuario
+        // Guardar respuesta del usuario con el índice original de la pregunta
         respuestasUsuario.push({
-          pregunta: i + 1,
+          pregunta: indicesOriginales[i] + 1, // Índice original en todasLasPreguntas (1-based)
           respuesta: valor,
           correcta: valor === 1
         });
