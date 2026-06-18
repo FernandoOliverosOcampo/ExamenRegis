@@ -7,11 +7,11 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { fechaCierre } = JSON.parse(event.body);
+    const { fechaInicio, fechaFin } = JSON.parse(event.body);
     
-    // Validar que venga la fecha
-    if (!fechaCierre) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'fechaCierre es requerido' }) };
+    // Validar que vengan las fechas
+    if (!fechaInicio || !fechaFin) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'fechaInicio y fechaFin son requeridos' }) };
     }
 
     // Conectar a MongoDB
@@ -22,8 +22,8 @@ exports.handler = async (event, context) => {
 
     // Guardar o actualizar la configuración
     await collection.updateOne(
-      { tipo: 'fecha_cierre' },
-      { $set: { valor: fechaCierre, updatedAt: new Date() } },
+      { tipo: 'fechas_examen' },
+      { $set: { fechaInicio, fechaFin, updatedAt: new Date() } },
       { upsert: true }
     );
 

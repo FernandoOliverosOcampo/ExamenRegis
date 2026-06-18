@@ -13,17 +13,18 @@ exports.handler = async (event, context) => {
     const db = client.db('examen');
     const collection = db.collection('configuracion');
 
-    // Obtener la configuración de fecha de cierre
-    const config = await collection.findOne({ tipo: 'fecha_cierre' });
+    // Obtener la configuración de fechas del examen
+    const config = await collection.findOne({ tipo: 'fechas_examen' });
 
     await client.close();
 
-    // Si no hay configuración, retornar valor por defecto
-    const fechaCierre = config ? config.valor : '2026-06-17T19:59:59';
+    // Si no hay configuración, retornar valores por defecto
+    const fechaInicio = config ? config.fechaInicio : '2026-06-01T00:00:00';
+    const fechaFin = config ? config.fechaFin : '2026-06-17T19:59:59';
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ fechaCierre })
+      body: JSON.stringify({ fechaInicio, fechaFin })
     };
 
   } catch (error) {

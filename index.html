@@ -367,6 +367,18 @@
         return;
       }
       
+      // Verificar si estamos dentro del rango de fechas
+      const ahora = new Date();
+      if (ahora < fechaInicio) {
+        const tiempoInicio = fechaInicio.toLocaleString('es-ES');
+        alert(`El examen no está disponible aún. Estará disponible a partir del: ${tiempoInicio}`);
+        return;
+      }
+      if (ahora > fechaFin) {
+        alert("El tiempo para presentar el examen ha finalizado.");
+        return;
+      }
+      
       // Verificar si el usuario ya existe en MongoDB
       try {
         const response = await fetch('/.netlify/functions/registrar-usuario', {
@@ -421,30 +433,48 @@
         "loginCedula"
       ).style.display = "block";
     }
-    // FECHA Y HORA DE CIERRE (se obtiene de MongoDB via Netlify Function)
+    // FECHA Y HORA DE INICIO Y CIERRE (se obtienen de MongoDB via Netlify Function)
+    let fechaInicio = new Date("2026-06-01T00:00:00"); // Valor por defecto
     let fechaFin = new Date("2026-06-17T19:59:59"); // Valor por defecto
     
-    // Obtener fecha de cierre del servidor
-    async function obtenerFechaCierre() {
+    // Obtener fechas del servidor
+    async function obtenerFechas() {
       try {
         const response = await fetch('/.netlify/functions/obtener-config');
         const data = await response.json();
-        if (data.fechaCierre) {
-          fechaFin = new Date(data.fechaCierre);
+        if (data.fechaInicio) {
+          fechaInicio = new Date(data.fechaInicio);
+        }
+        if (data.fechaFin) {
+          fechaFin = new Date(data.fechaFin);
         }
       } catch (error) {
-        console.error('Error al obtener fecha de cierre:', error);
+        console.error('Error al obtener fechas:', error);
       }
     }
     
     // Llamar a la función al cargar
-    obtenerFechaCierre();
+    obtenerFechas();
     let examenFinalizado = false;
-    // TEMPORIZADOR
+    // TEMPORIZADOR Y VERIFICACIÓN DE FECHAS
     setInterval(() => {
       const ahora = new Date();
-      const restante =
-        fechaFin - ahora;
+      
+      // Verificar si estamos antes de la fecha de inicio
+      if (ahora < fechaInicio) {
+        if (!examenFinalizado) {
+          examenFinalizado = true;
+          const tiempoInicio = fechaInicio.toLocaleString('es-ES');
+          document.body.innerHTML = `
+            <h1>Examen no disponible</h1>
+            <p>El examen estará disponible a partir del: ${tiempoInicio}</p>
+          `;
+        }
+        return;
+      }
+      
+      // Verificar si estamos después de la fecha de cierre
+      const restante = fechaFin - ahora;
       if (restante <= 0) {
         if (!examenFinalizado) {
           examenFinalizado = true;
@@ -453,17 +483,13 @@
         }
         return;
       }
-      const horas =
-        Math.floor(restante / 1000 / 60 / 60);
-      const minutos =
-        Math.floor(restante / 1000 / 60) % 60;
-      const segundos =
-        Math.floor(restante / 1000) % 60;
-      document.getElementById(
-          "temporizador"
-        ).innerHTML =
-        `Tiempo restante:
-    ${horas}h ${minutos}m ${segundos}s`;
+      
+      // Mostrar tiempo restante
+      const horas = Math.floor(restante / 1000 / 60 / 60);
+      const minutos = Math.floor(restante / 1000 / 60) % 60;
+      const segundos = Math.floor(restante / 1000) % 60;
+      document.getElementById("temporizador").innerHTML =
+        `Tiempo restante: ${horas}h ${minutos}m ${segundos}s`;
     }, 1000);
     // DETECTAR CAMBIO DE PESTAÑA
     document.addEventListener(

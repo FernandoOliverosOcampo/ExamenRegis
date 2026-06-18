@@ -179,7 +179,7 @@
   <div id="loginSection" class="login-section container">
     <h2>Acceso Administrativo</h2>
     <p>Ingrese su contraseña para acceder al panel de administración</p>
-    <input type="password" id="adminPassword" placeholder="Contraseña">
+    <input type="password" id="adminPassword" placeholder="Contraseña" onkeypress="if(event.key === 'Enter') login()">
     <button onclick="login()">Ingresar</button>
   </div>
 
@@ -211,15 +211,21 @@
         
         <div class="pregunta-item">
           <h3>Tiempo de Disponibilidad</h3>
-          <p>Configure la fecha y hora de cierre del examen:</p>
-          <input type="datetime-local" id="fechaCierre">
-          <button onclick="guardarFechaCierre()" class="success">Guardar Fecha de Cierre</button>
+          <p>Configure la fecha y hora de inicio y cierre del examen:</p>
+          <label><strong>Fecha y hora de inicio:</strong></label>
+          <input type="datetime-local" id="fechaInicio" style="margin-bottom: 10px;">
+          <br>
+          <label><strong>Fecha y hora de cierre:</strong></label>
+          <input type="datetime-local" id="fechaFin">
+          <br><br>
+          <button onclick="guardarFechas()" class="success">Guardar Fechas</button>
           <div id="fechaAlert" class="alert-box"></div>
         </div>
 
         <div class="pregunta-item">
           <h3>Configuración Actual</h3>
-          <p><strong>Fecha de cierre actual:</strong> <span id="fechaCierreActual">Cargando...</span></p>
+          <p><strong>Fecha de inicio actual:</strong> <span id="fechaInicioActual">Cargando...</span></p>
+          <p><strong>Fecha de cierre actual:</strong> <span id="fechaFinActual">Cargando...</span></p>
           <p><strong>Número de preguntas:</strong> 20 (seleccionadas aleatoriamente de 40)</p>
           <p><strong>Puntaje mínimo para certificación:</strong> 80/100</p>
         </div>
@@ -575,37 +581,41 @@
 
     async function cargarFechaCierre() {
       try {
-        // Obtener fecha de cierre del servidor
+        // Obtener fechas del servidor
         const response = await fetch('/.netlify/functions/obtener-config');
         const data = await response.json();
         
-        let fechaCierre = data.fechaCierre || "2026-06-17T19:59:59";
+        let fechaInicio = data.fechaInicio || "2026-06-01T00:00:00";
+        let fechaFin = data.fechaFin || "2026-06-17T19:59:59";
 
         // Convertir a formato para el input datetime-local
-        const fecha = new Date(fechaCierre);
-        const year = fecha.getFullYear();
-        const month = String(fecha.getMonth() + 1).padStart(2, '0');
-        const day = String(fecha.getDate()).padStart(2, '0');
-        const hours = String(fecha.getHours()).padStart(2, '0');
-        const minutes = String(fecha.getMinutes()).padStart(2, '0');
+        const inicio = new Date(fechaInicio);
+        const fin = new Date(fechaFin);
         
-        const formatoInput = `${year}-${month}-${day}T${hours}:${minutes}`;
+        const formatoInicio = `${inicio.getFullYear()}-${String(inicio.getMonth() + 1).padStart(2, '0')}-${String(inicio.getDate()).padStart(2, '0')}T${String(inicio.getHours()).padStart(2, '0')}:${String(inicio.getMinutes()).padStart(2, '0')}`;
+        const formatoFin = `${fin.getFullYear()}-${String(fin.getMonth() + 1).padStart(2, '0')}-${String(fin.getDate()).padStart(2, '0')}T${String(fin.getHours()).padStart(2, '0')}:${String(fin.getMinutes()).padStart(2, '0')}`;
         
-        document.getElementById('fechaCierre').value = formatoInput;
-        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+        document.getElementById('fechaInicio').value = formatoInicio;
+        document.getElementById('fechaFin').value = formatoFin;
+        document.getElementById('fechaInicioActual').textContent = inicio.toLocaleString('es-ES');
+        document.getElementById('fechaFinActual').textContent = fin.toLocaleString('es-ES');
         
       } catch (error) {
-        console.error('Error al cargar fecha de cierre:', error);
-        // Usar valor por defecto si hay error
-        const fecha = new Date("2026-06-17T19:59:59");
-        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+        console.error('Error al cargar fechas:', error);
+        // Usar valores por defecto si hay error
+        const inicio = new Date("2026-06-01T00:00:00");
+        const fin = new Date("2026-06-17T19:59:59");
+        document.getElementById('fechaInicioActual').textContent = inicio.toLocaleString('es-ES');
+        document.getElementById('fechaFinActual').textContent = fin.toLocaleString('es-ES');
       }
     }
 
-    async function guardarFechaCierre() {
-      const nuevaFecha = document.getElementById('fechaCierre').value;
-      if (!nuevaFecha) {
-        mostrarAlerta('error', 'Por favor seleccione una fecha y hora');
+    async function guardarFechas() {
+      const nuevaFechaInicio = document.getElementById('fechaInicio').value;
+      const nuevaFechaFin = document.getElementById('fechaFin').value;
+      
+      if (!nuevaFechaInicio || !nuevaFechaFin) {
+        mostrarAlerta('error', 'Por favor seleccione ambas fechas y horas');
         return;
       }
 
@@ -613,7 +623,10 @@
         const response = await fetch('/.netlify/functions/guardar-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fechaCierre: nuevaFecha + ':00' })
+          body: JSON.stringify({ 
+            fechaInicio: nuevaFechaInicio + ':00',
+            fechaFin: nuevaFechaFin + ':00'
+          })
         });
         
         const data = await response.json();
@@ -624,10 +637,12 @@
         }
         
         // Actualizar display
-        const fecha = new Date(nuevaFecha);
-        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+        const inicio = new Date(nuevaFechaInicio);
+        const fin = new Date(nuevaFechaFin);
+        document.getElementById('fechaInicioActual').textContent = inicio.toLocaleString('es-ES');
+        document.getElementById('fechaFinActual').textContent = fin.toLocaleString('es-ES');
         
-        mostrarAlerta('success', 'Fecha de cierre actualizada correctamente');
+        mostrarAlerta('success', 'Fechas actualizadas correctamente');
         
       } catch (error) {
         console.error('Error:', error);
