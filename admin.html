@@ -817,12 +817,23 @@
               const textColor = resp.correcta ? '#155724' : '#721c24';
               const icono = resp.correcta ? '✓' : '✗';
               
+              let respuestaCorrectaHTML = '';
+              if (!resp.correcta && preguntaOriginal) {
+                const opcionCorrecta = preguntaOriginal.opciones[preguntaOriginal.correcta];
+                respuestaCorrectaHTML = `
+                  <div style="margin-top:8px; padding:8px; background:#fff3cd; border-left:3px solid #ffc107; border-radius:3px;">
+                    <strong style="color:#856404;">Respuesta correcta:</strong> ${opcionCorrecta}
+                  </div>
+                `;
+              }
+              
               detalleHTML += `
                 <div style="background:${bgColor}; color:${textColor}; padding:15px; margin-bottom:10px; border-radius:5px; border-left:4px solid ${resp.correcta ? '#28a745' : '#dc3545'};">
                   <div style="font-weight:bold; margin-bottom:5px;">${icono} Pregunta ${resp.pregunta}: ${preguntaTexto}</div>
                   <div style="font-size:14px;">
                     <strong>Estado:</strong> ${resp.correcta ? 'Correcta' : 'Incorrecta'}
                   </div>
+                  ${respuestaCorrectaHTML}
                 </div>
               `;
             });
