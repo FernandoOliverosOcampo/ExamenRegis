@@ -500,20 +500,28 @@
       }
       let total = 0;
       const preguntas = NUMERO_PREGUNTAS;
+      const respuestasUsuario = [];
+      
       for (let i = 0; i < preguntas; i++) {
         const respuesta =
           document.querySelector(
             'input[name="p' + i + '"]:checked'
           );
-        if (respuesta) {
-          total +=
-            parseInt(
-              respuesta.value
-            );
-        }
+        const valor = respuesta ? parseInt(respuesta.value) : 0;
+        total += valor;
+        
+        // Guardar respuesta del usuario
+        respuestasUsuario.push({
+          pregunta: i + 1,
+          respuesta: valor,
+          correcta: valor === 1
+        });
       }
       const nota =
         (total / preguntas) * 100;
+      
+      // Guardar resultado en MongoDB
+      guardarResultado(documento, nombre, respuestasUsuario, nota);
       
       let mensaje =
         `<h2>Resultado</h2>
@@ -553,6 +561,24 @@
       document.getElementById(
         "examen"
       ).style.display = "none";
+    }
+    
+    async function guardarResultado(cedula, nombre, respuestas, nota) {
+      try {
+        await fetch('/.netlify/functions/guardar-resultado', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cedula,
+            nombre,
+            respuestas,
+            nota,
+            fecha: new Date()
+          })
+        });
+      } catch (error) {
+        console.error('Error al guardar resultado:', error);
+      }
     }
   </script>
 

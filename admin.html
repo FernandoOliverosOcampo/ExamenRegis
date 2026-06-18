@@ -100,7 +100,7 @@
 
     .opcion.incorrecta {
       background-color: #f8d7da;
-      border-left: 4px solid #dc3545;
+      border-left: 4px solid #ffffff;
       padding-left: 10px;
     }
 
@@ -196,6 +196,7 @@
         <button onclick="showTab('respuestas')" class="active" id="tabRespuestas">Respuestas Correctas</button>
         <button onclick="showTab('config')" id="tabConfig">Configuración</button>
         <button onclick="showTab('usuarios')" id="tabUsuarios">Usuarios Ingresados</button>
+        <button onclick="showTab('resultados')" id="tabResultados">Resultados Detallados</button>
       </div>
 
       <!-- Tab: Respuestas Correctas -->
@@ -237,6 +238,7 @@
                 <th>Cédula</th>
                 <th>Estado</th>
                 <th>Fecha de Ingreso</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="usuariosTableBody">
@@ -246,6 +248,32 @@
         
         <div id="noUsuarios" style="display:none; text-align:center; padding: 20px;">
           <p>No hay usuarios registrados aún.</p>
+        </div>
+      </div>
+
+      <!-- Tab: Resultados Detallados -->
+      <div id="resultados" class="tab-content">
+        <h2>Resultados Detallados de los Exámenes</h2>
+        <button onclick="cargarResultados()" class="secondary">Actualizar Lista</button>
+        
+        <div id="resultadosContainer">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Nota</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody id="resultadosTableBody">
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="noResultados" style="display:none; text-align:center; padding: 20px;">
+          <p>No hay resultados de exámenes aún.</p>
         </div>
       </div>
     </div>
@@ -522,8 +550,8 @@
         pregunta.opciones.forEach((opcion, opcionIndex) => {
           const esCorrecta = opcionIndex === pregunta.correcta;
           opcionesHTML += `
-            <div class="opcion ${esCorrecta ? 'correcta' : 'incorrecta'}">
-              ${esCorrecta ? '✓ ' : '✗ '}${opcion}
+            <div class="opcion ${esCorrecta ? 'correcta' : ''}">
+              ${esCorrecta ? '✓ ' : ''}${opcion}
             </div>
           `;
         });
@@ -635,6 +663,9 @@
               <td>${usuario.cedula}</td>
               <td><span class="status-badge status-ingresando">${usuario.estado}</span></td>
               <td>${fechaFormateada}</td>
+              <td>
+                <button onclick="eliminarUsuario('${usuario.cedula}')" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Eliminar</button>
+              </td>
             `;
             tbody.appendChild(row);
           });
@@ -670,6 +701,114 @@
           alert('Error de conexión al servidor');
         }
       }
+    }
+
+    async function eliminarUsuario(cedula) {
+      if (confirm(`¿Está seguro de que desea eliminar al usuario con cédula ${cedula}? Esta acción no se puede deshacer.`)) {
+        try {
+          const response = await fetch('/.netlify/functions/eliminar-usuario', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cedula })
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            alert('Error al eliminar usuario: ' + (data.error || 'Error desconocido'));
+            return;
+          }
+          
+          cargarUsuarios();
+          alert(`Usuario eliminado correctamente`);
+          
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error de conexión al servidor');
+        }
+      }
+    }
+
+    async function cargarResultados() {
+      const tbody = document.getElementById('resultadosTableBody');
+      tbody.innerHTML = '';
+
+      try {
+        const response = await fetch('/.netlify/functions/listar-resultados');
+        const data = await response.json();
+        
+        const resultados = data.resultados || [];
+
+        if (resultados.length === 0) {
+          document.getElementById('noResultados').style.display = 'block';
+          document.getElementById('resultadosContainer').querySelector('table').style.display = 'none';
+        } else {
+          document.getElementById('noResultados').style.display = 'none';
+          document.getElementById('resultadosContainer').querySelector('table').style.display = 'table';
+
+          resultados.forEach(resultado => {
+            const row = document.createElement('tr');
+            const fechaFormateada = new Date(resultado.fecha).toLocaleString('es-ES');
+            const notaColor = resultado.nota >= 80 ? 'green' : 'red';
+            
+            // Contar respuestas correctas e incorrectas
+            const correctas = resultado.respuestas.filter(r => r.correcta).length;
+            const incorrectas = resultado.respuestas.filter(r => !r.correcta).length;
+            
+            row.innerHTML = `
+              <td>${resultado.nombre}</td>
+              <td>${resultado.cedula}</td>
+              <td style="color: ${notaColor}; font-weight: bold;">${resultado.nota.toFixed(0)}/100</td>
+              <td>${fechaFormateada}</td>
+              <td>
+                <button onclick="verDetalle('${resultado.cedula}')" class="secondary">Ver Detalle</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error al cargar resultados:', error);
+        document.getElementById('noResultados').style.display = 'block';
+        document.getElementById('noResultados').querySelector('p').textContent = 'Error al cargar resultados. Por favor intente nuevamente.';
+        document.getElementById('resultadosContainer').querySelector('table').style.display = 'none';
+      }
+    }
+
+    function verDetalle(cedula) {
+      // Encontrar el resultado por cédula
+      fetch('/.netlify/functions/listar-resultados')
+        .then(response => response.json())
+        .then(data => {
+          const resultado = data.resultados.find(r => r.cedula === cedula);
+          if (resultado) {
+            let detalleHTML = `
+              <h3>Detalle de Respuestas - ${resultado.nombre}</h3>
+              <p><strong>Cédula:</strong> ${resultado.cedula}</p>
+              <p><strong>Nota:</strong> ${resultado.nota.toFixed(0)}/100</p>
+              <p><strong>Fecha:</strong> ${new Date(resultado.fecha).toLocaleString('es-ES')}</p>
+              <hr>
+              <h4>Respuestas por pregunta:</h4>
+            `;
+            
+            resultado.respuestas.forEach(resp => {
+              const color = resp.correcta ? 'green' : 'red';
+              const texto = resp.correcta ? '✓ Correcta' : '✗ Incorrecta';
+              detalleHTML += `
+                <p style="color: ${color};">
+                  <strong>Pregunta ${resp.pregunta}:</strong> ${texto}
+                </p>
+              `;
+            });
+            
+            alert(detalleHTML.replace(/<[^>]*>/g, '\n').replace(/\n+/g, '\n'));
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al cargar detalle');
+        });
     }
 
     // Cargar fecha actual al iniciar
