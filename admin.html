@@ -279,6 +279,14 @@
     </div>
   </div>
 
+  <!-- Modal para ver detalles -->
+  <div id="detalleModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; overflow-y:auto;">
+    <div style="background:white; margin:50px auto; padding:30px; max-width:800px; border-radius:10px; position:relative;">
+      <button onclick="cerrarModal()" style="position:absolute; top:10px; right:10px; background:#dc3545; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-size:18px;">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
   <script>
     // Contraseña del administración (puedes cambiarla)
     const ADMIN_PASSWORD = "admin123";
@@ -783,32 +791,54 @@
         .then(data => {
           const resultado = data.resultados.find(r => r.cedula === cedula);
           if (resultado) {
+            const notaColor = resultado.nota >= 80 ? 'green' : 'red';
+            const correctas = resultado.respuestas.filter(r => r.correcta).length;
+            const incorrectas = resultado.respuestas.filter(r => !r.correcta).length;
+            
             let detalleHTML = `
-              <h3>Detalle de Respuestas - ${resultado.nombre}</h3>
-              <p><strong>Cédula:</strong> ${resultado.cedula}</p>
-              <p><strong>Nota:</strong> ${resultado.nota.toFixed(0)}/100</p>
-              <p><strong>Fecha:</strong> ${new Date(resultado.fecha).toLocaleString('es-ES')}</p>
-              <hr>
-              <h4>Respuestas por pregunta:</h4>
+              <h2 style="margin-bottom:20px;">Detalle de Respuestas</h2>
+              <div style="background:#f5f5f5; padding:15px; border-radius:5px; margin-bottom:20px;">
+                <p><strong>Nombre:</strong> ${resultado.nombre}</p>
+                <p><strong>Cédula:</strong> ${resultado.cedula}</p>
+                <p><strong>Nota:</strong> <span style="color:${notaColor}; font-weight:bold; font-size:18px;">${resultado.nota.toFixed(0)}/100</span></p>
+                <p><strong>Fecha:</strong> ${new Date(resultado.fecha).toLocaleString('es-ES')}</p>
+                <p><strong>Correctas:</strong> ${correctas}/20</p>
+                <p><strong>Incorrectas:</strong> ${incorrectas}/20</p>
+              </div>
+              <h3 style="margin-bottom:15px;">Respuestas por pregunta:</h3>
             `;
             
-            resultado.respuestas.forEach(resp => {
-              const color = resp.correcta ? 'green' : 'red';
-              const texto = resp.correcta ? '✓ Correcta' : '✗ Incorrecta';
+            resultado.respuestas.forEach((resp, index) => {
+              // Encontrar la pregunta correspondiente
+              const preguntaOriginal = todasLasPreguntas.find((p, i) => i + 1 === resp.pregunta);
+              const preguntaTexto = preguntaOriginal ? preguntaOriginal.pregunta.replace(/^\d+\.\s*/, '') : 'Pregunta no encontrada';
+              
+              const bgColor = resp.correcta ? '#d4edda' : '#f8d7da';
+              const textColor = resp.correcta ? '#155724' : '#721c24';
+              const icono = resp.correcta ? '✓' : '✗';
+              
               detalleHTML += `
-                <p style="color: ${color};">
-                  <strong>Pregunta ${resp.pregunta}:</strong> ${texto}
-                </p>
+                <div style="background:${bgColor}; color:${textColor}; padding:15px; margin-bottom:10px; border-radius:5px; border-left:4px solid ${resp.correcta ? '#28a745' : '#dc3545'};">
+                  <div style="font-weight:bold; margin-bottom:5px;">${icono} Pregunta ${resp.pregunta}: ${preguntaTexto}</div>
+                  <div style="font-size:14px;">
+                    <strong>Estado:</strong> ${resp.correcta ? 'Correcta' : 'Incorrecta'}
+                  </div>
+                </div>
               `;
             });
             
-            alert(detalleHTML.replace(/<[^>]*>/g, '\n').replace(/\n+/g, '\n'));
+            document.getElementById('modalContent').innerHTML = detalleHTML;
+            document.getElementById('detalleModal').style.display = 'block';
           }
         })
         .catch(error => {
           console.error('Error:', error);
           alert('Error al cargar detalle');
         });
+    }
+
+    function cerrarModal() {
+      document.getElementById('detalleModal').style.display = 'none';
     }
 
     // Cargar fecha actual al iniciar
