@@ -298,224 +298,252 @@
     const ADMIN_PASSWORD = "admin123";
 
     // Preguntas con respuestas correctas (mismas que en index.html)
-    const todasLasPreguntas = [
-      {
-        pregunta: "1. ¿Cuál es la finalidad principal de dejar en blanco las casillas sin votación en el formulario E-14?",
-        opciones: [
-          "Reducir el uso de tinta en el formulario",
-          "Facilitar la verificación y evitar interpretaciones erróneas durante los escrutinios",
-          "Permitir correcciones posteriores por parte de los claveros"
-        ],
-        correcta: 1
-      },
-      {
-        pregunta: "2. ¿Qué formulario se utiliza para registrar el ingreso y retiro de documentos en el arca triclave?",
-        opciones: ["E-17", "E-21", "E-20"],
-        correcta: 2
-      },
-      {
-        pregunta: "3. ¿Cuál es la responsabilidad del delegado respecto a las urnas y cubículos antes de la jornada electoral?",
-        opciones: [
-          "Verificar cantidad, estado físico y correcta disposición",
-          "Numerarlos según la cantidad de votantes",
-          "Sellarlos con anticipación"
-        ],
-        correcta: 0
-      },
-      {
-        pregunta: "4. Según el Código Electoral, ¿cuántos días antes de la elección debe expedirse la resolución de designación de jurados?",
-        opciones: ["10 días", "15 días", "30 días"],
-        correcta: 1
-      },
-      {
-        pregunta: "5. Una exoneración de jurado presentada después de la elección corresponde a:",
-        opciones: ["Exoneración con reemplazo", "Exoneración de la sanción", "Exoneración administrativa"],
-        correcta: 1
-      },
-      {
-        pregunta: "6. ¿Qué autoridad designa las comisiones escrutadoras distritales, municipales y zonales?",
-        opciones: [
-          "Los Tribunales Superiores de Distrito Judicial en Sala Plena",
-          "La Registraduría Nacional",
-          "El Consejo Nacional Electoral"
-        ],
-        correcta: 0
-      },
-      {
-        pregunta: "7. ¿Cuál de las siguientes causales permite solicitar la exoneración como jurado de votación?",
-        opciones: ["Ser estudiante universitario", "No residir en el lugar donde fue designado", "Trabajar el día de la elección"],
-        correcta: 1
-      },
-      {
-        pregunta: "8. ¿Con qué documento se acredita la causal de no residencia para exonerarse como jurado?",
-        opciones: ["Recibo de servicio público", "Certificado laboral", "Certificación de vecindad expedida por autoridad competente"],
-        correcta: 2
-      },
-      {
-        pregunta: "9. Sin la credencial expedida por la autoridad electoral, los testigos electorales:",
-        opciones: ["Pueden actuar con autorización verbal", "No pueden ejercer sus funciones", "Solo pueden observar sin intervenir"],
-        correcta: 1
-      },
-      {
-        pregunta: "10. ¿Cuál es la función de los traductores de lengua nativa autorizados en algunas circunscripciones?",
-        opciones: ["Apoyar el escrutinio auxiliar", "Orientar a ciudadanos que no hablan español", "Reemplazar jurados ausentes"],
-        correcta: 1
-      },
-      {
-        pregunta: "11. ¿Qué significa el código de zona 90 dentro de la Divipole?",
-        opciones: ["Zona rural", "Puesto censo", "Cárcel"],
-        correcta: 1
-      },
-      {
-        pregunta: "12. ¿Qué código identifica los puestos de votación ubicados en establecimientos carcelarios?",
-        opciones: ["90", "98", "99"],
-        correcta: 1
-      },
-      {
-        pregunta: "13. ¿Qué principio se protege al ubicar los cubículos de manera que nadie observe al elector?",
-        opciones: ["Voto secreto", "Publicidad electoral", "Transparencia administrativa"],
-        correcta: 0
-      },
-      {
-        pregunta: "14. ¿Cuál es el propósito de ubicar las primeras mesas cerca de las salidas del puesto?",
-        opciones: ["Facilitar el escrutinio", "Evitar congestiones en el ingreso de votantes", "Optimizar la transmisión de resultados"],
-        correcta: 1
-      },
-      {
-        pregunta: "15. ¿Qué ley establece la obligación de disponer mobiliario para jurados, testigos y observadores?",
-        opciones: ["Ley 1475 de 2011", "Ley 1227 de 2008", "Ley 996 de 2005"],
-        correcta: 1
-      },
-      {
-        pregunta: "16. ¿Cuál de los siguientes corresponde a un kit departamental?",
-        opciones: [
-          "Material de apoyo para acondicionamiento de puestos y comisiones escrutadoras",
-          "Material exclusivo para jurados de mesa",
-          "Tarjetas electorales para votantes"
-        ],
-        correcta: 0
-      },
-      {
-        pregunta: "17. ¿Qué formulario constituye la constancia de entrega de documentos electorales?",
-        opciones: ["E-17", "E-19", "E-29"],
-        correcta: 0
-      },
-      {
-        pregunta: "18. ¿Qué formulario corresponde al recibo de documentos electorales del puesto de votación?",
-        opciones: ["E-17", "E-19", "E-20"],
-        correcta: 1
-      },
-      {
-        pregunta: "19. ¿Cuántas tarjetas Braille debe recibir un puesto de votación como mínimo?",
-        opciones: ["Dos por mesa", "Una por puesto", "Una por cada 10 mesas"],
-        correcta: 1
-      },
-      {
-        pregunta: "20. ¿Qué debe hacer el registrador ad hoc si detecta faltantes en el kit municipal?",
-        opciones: ["Esperar la jornada electoral", "Informar inmediatamente al proveedor o coordinador electoral", "Reemplazar el material con recursos propios"],
-        correcta: 1
-      },
-      {
-        pregunta: "21. En municipios zonificados, ¿dónde se reciben normalmente los kits de mesa?",
-        opciones: ["Directamente en los puestos de votación el día de la elección", "En la alcaldía municipal", "En la gobernación"],
-        correcta: 0
-      },
-      {
-        pregunta: "22. ¿Cuál es una prioridad en la gestión de apoyo de las alcaldías?",
-        opciones: ["Contratación de personal temporal", "Transporte de kits y delegados hacia corregimientos", "Publicidad institucional"],
-        correcta: 1
-      },
-      {
-        pregunta: "23. ¿Qué comisión coordina actividades y compromisos entre entidades para garantizar los comicios?",
-        opciones: ["Comisión Nacional del Servicio Civil", "Comisión Municipal de Coordinación y Seguimiento a los Procesos Electorales", "Comisión de Garantías Partidistas"],
-        correcta: 1
-      },
-      {
-        pregunta: "24. ¿Qué entidad debe coordinar la custodia de kits electorales y pliegos electorales?",
-        opciones: ["La Fuerza Pública", "Los jurados de votación", "Los testigos electorales"],
-        correcta: 0
-      },
-      {
-        pregunta: "25. ¿Cuál es una función de las Comisiones de Coordinación y Seguimiento según el Decreto 800 de 2025?",
-        opciones: ["Designar jurados de votación", "Coordinar acciones para la transparencia del sufragio y los escrutinios", "Resolver demandas electorales"],
-        correcta: 1
-      },
-      {
-        pregunta: "26. ¿Quién reconstruye la comisión escrutadora cuando un escrutador falta después de iniciado el escrutinio?",
-        opciones: ["El registrador municipal", "El Consejo Nacional Electoral", "El juez clavero"],
-        correcta: 2
-      },
-      {
-        pregunta: "27. ¿Qué documento prueba la causal de exoneración por fallecimiento de un familiar?",
-        opciones: ["Declaración juramentada", "Certificado de defunción", "Registro civil de nacimiento"],
-        correcta: 1
-      },
-      {
-        pregunta: "28. ¿Qué porcentaje de puestos debe contar con cubículos con ajustes razonables para personas con discapacidad?",
-        opciones: ["50 %", "70 %", "100 %"],
-        correcta: 1
-      },
-      {
-        pregunta: "29. ¿Cuál es el objetivo principal de la suspensión temporal de entrega de cédulas durante el proceso electoral?",
-        opciones: ["Garantizar transparencia y control electoral", "Reducir carga administrativa", "Facilitar la logística de escrutinios"],
-        correcta: 0
-      },
-      {
-        pregunta: "30. ¿Cuál de las siguientes actividades corresponde a la etapa de preparación y logística de las votaciones?",
-        opciones: ["Resolver reclamaciones de escrutinio", "Verificar condiciones de funcionamiento y accesibilidad de los puestos", "Consolidar resultados nacionales"],
-        correcta: 1
-      },
-      {
-        pregunta: "31. ¿Hasta cuántos días antes de la elección pueden suplirse las exoneraciones de jurados con ciudadanos de las bases de datos aportadas?",
-        opciones: ["5 días antes", "10 días antes", "15 días antes"],
-        correcta: 1
-      },
-      {
-        pregunta: "32. ¿Cuál es la principal finalidad de la Divipole para un registrador ad hoc?",
-        opciones: ["Determinar el número de candidatos inscritos", "Comprender la organización administrativa y electoral del territorio", "Asignar jurados de votación"],
-        correcta: 1
-      },
-      {
-        pregunta: "33. ¿Qué código de zona identifica los puestos de votación rurales?",
-        opciones: ["98", "90", "99"],
-        correcta: 2
-      },
-      {
-        pregunta: "34. ¿Cuál de las siguientes condiciones debe garantizarse al ubicar urnas y cubículos?",
-        opciones: ["Que las urnas estén cerca de la entrada principal", "Que el ciudadano identifique fácilmente dónde depositar su voto", "Que las mesas estén agrupadas en un mismo salón"],
-        correcta: 1
-      },
-      {
-        pregunta: "35. ¿Qué documento se utiliza para dejar constancia de los pliegos electorales producidos?",
-        opciones: ["E-20", "E-21", "E-29"],
-        correcta: 2
-      },
-      {
-        pregunta: "36. ¿Cuál es el color que identifica los sobres para cadena de custodia de votos?",
-        opciones: ["Azul", "Gris", "Amarillo"],
-        correcta: 1
-      },
-      {
-        pregunta: "37. En un puesto con más de 50 mesas, ¿cuántas tarjetas Braille debe recibir como mínimo?",
-        opciones: ["Una", "Dos", "Tres"],
-        correcta: 1
-      },
-      {
-        pregunta: "38. ¿Qué debe hacer el registrador ad hoc respecto a las comisiones municipales de coordinación electoral?",
-        opciones: ["Revisar compromisos previos y participar activamente en ellas", "Limitarse a recibir las actas finales", "Delegar su participación en los jurados"],
-        correcta: 0
-      },
-      {
-        pregunta: "39. ¿Cuál es una función de las comisiones de coordinación electoral relacionada con el orden público?",
-        opciones: ["Designar comandantes de policía", "Recomendar traslados de mesas por motivos de fuerza mayor u orden público", "Autorizar campañas políticas"],
-        correcta: 1
-      },
-      {
-        pregunta: "40. ¿Qué debe coordinarse con la autoridad competente para proteger la transmisión de información electoral?",
-        opciones: ["La publicidad institucional", "La distribución de formularios E-14", "La seguridad informática del proceso electoral"],
-        correcta: 2
-      }
-    ];
+   const todasLasPreguntas = [
+    {
+      pregunta: "1. ¿Cuál es la finalidad principal de dejar en blanco las casillas sin votación en el formulario E-14?",
+      opciones: [
+        "Reducir el uso de tinta en el formulario",
+        "Facilitar la verificación y evitar interpretaciones erróneas durante los escrutinios",
+        "Permitir correcciones posteriores por parte de los claveros"
+      ],
+      correcta: 1
+    },
+    {
+      pregunta: "2. ¿Qué formulario se utiliza para registrar el ingreso y retiro de documentos en el arca triclave?",
+      opciones: ["E-17", "E-21", "E-20"],
+      correcta: 2
+    },
+    {
+      pregunta: "3. ¿Cuál es la responsabilidad del delegado respecto a las urnas y cubículos antes de la jornada electoral?",
+      opciones: [
+        "Verificar cantidad, estado físico y correcta disposición",
+        "Numerarlos según la cantidad de votantes",
+        "Sellarlos con anticipación"
+      ],
+      correcta: 0
+    },
+    {
+      pregunta: "4. Según el Código Electoral, ¿cuántos días antes de la elección debe expedirse la resolución de designación de jurados?",
+      opciones: ["10 días", "15 días", "30 días"],
+      correcta: 1
+    },
+    {
+      pregunta: "5. Una exoneración de jurado presentada después de la elección corresponde a:",
+      opciones: ["Exoneración con reemplazo", "Exoneración de la sanción", "Exoneración administrativa"],
+      correcta: 1
+    },
+    {
+      pregunta: "6. ¿Qué autoridad designa las comisiones escrutadoras distritales, municipales y zonales?",
+      opciones: [
+        "Los Tribunales Superiores de Distrito Judicial en Sala Plena",
+        "La Registraduría Nacional",
+        "El Consejo Nacional Electoral"
+      ],
+      correcta: 0
+    },
+    {
+      pregunta: "7. ¿Cuál de las siguientes causales permite solicitar la exoneración como jurado de votación?",
+      opciones: ["Ser estudiante universitario", "No residir en el lugar donde fue designado", "Trabajar el día de la elección"],
+      correcta: 1
+    },
+    {
+      pregunta: "8. ¿Con qué documento se acredita la causal de no residencia para exonerarse como jurado?",
+      opciones: ["Recibo de servicio público", "Certificado laboral", "Certificación de vecindad expedida por autoridad competente"],
+      correcta: 2
+    },
+    {
+      pregunta: "9. Sin la credencial expedida por la autoridad electoral, los testigos electorales:",
+      opciones: ["Pueden actuar con autorización verbal", "No pueden ejercer sus funciones", "Solo pueden observar sin intervenir"],
+      correcta: 1
+    },
+    {
+      pregunta: "10. ¿Cuál es la función de los traductores de lengua nativa autorizados en algunas circunscripciones?",
+      opciones: ["Apoyar el escrutinio auxiliar", "Orientar a ciudadanos que no hablan español", "Reemplazar jurados ausentes"],
+      correcta: 1
+    },
+    {
+      pregunta: "11. ¿Qué significa el código de zona 90 dentro de la Divipole?",
+      opciones: ["Zona rural", "Puesto censo", "Cárcel"],
+      correcta: 1
+    },
+    {
+      pregunta: "12. ¿Qué código identifica los puestos de votación ubicados en establecimientos carcelarios?",
+      opciones: ["90", "98", "99"],
+      correcta: 1
+    },
+    {
+      pregunta: "13. ¿Qué principio se protege al ubicar los cubículos de manera que nadie observe al elector?",
+      opciones: ["Voto secreto", "Publicidad electoral", "Transparencia administrativa"],
+      correcta: 0
+    },
+    {
+      pregunta: "14. ¿Cuál es el propósito de ubicar las primeras mesas cerca de las salidas del puesto?",
+      opciones: ["Facilitar el escrutinio", "Evitar congestiones en el ingreso de votantes", "Optimizar la transmisión de resultados"],
+      correcta: 1
+    },
+    {
+      pregunta: "15. ¿Qué ley establece la obligación de disponer mobiliario para jurados, testigos y observadores?",
+      opciones: ["Ley 1475 de 2011", "Ley 1227 de 2008", "Ley 996 de 2005"],
+      correcta: 1
+    },
+    {
+      pregunta: "16. ¿Qué formulario constituye la constancia de entrega de documentos electorales?",
+      opciones: ["E-17", "E-19", "E-29"],
+      correcta: 0
+    },
+    {
+      pregunta: "17. ¿Qué formulario corresponde al recibo de documentos electorales del puesto de votación?",
+      opciones: ["E-17", "E-19", "E-20"],
+      correcta: 1
+    },
+    {
+      pregunta: "18. ¿Cuántas tarjetas Braille debe recibir un puesto de votación como mínimo?",
+      opciones: ["Dos por mesa", "Una por puesto", "Una por cada 10 mesas"],
+      correcta: 1
+    },
+    {
+      pregunta: "19. En municipios zonificados, ¿dónde se reciben normalmente los kits de mesa?",
+      opciones: ["Directamente en los puestos de votación el día de la elección", "En la alcaldía municipal", "En la gobernación"],
+      correcta: 0
+    },
+    {
+      pregunta: "20. ¿Qué comisión coordina actividades y compromisos entre entidades para garantizar los comicios?",
+      opciones: ["Comisión Nacional del Servicio Civil", "Comisión Municipal de Coordinación y Seguimiento a los Procesos Electorales", "Comisión de Garantías Partidistas"],
+      correcta: 1
+    },
+    {
+      pregunta: "21. ¿Qué entidad debe coordinar la custodia de kits electorales y pliegos electorales?",
+      opciones: ["La Fuerza Pública", "Los jurados de votación", "Los testigos electorales"],
+      correcta: 0
+    },
+    {
+      pregunta: "22. ¿Quién reconstruye la comisión escrutadora cuando un escrutador falta después de iniciado el escrutinio?",
+      opciones: ["El registrador municipal", "El Consejo Nacional Electoral", "El juez clavero"],
+      correcta: 2
+    },
+    {
+      pregunta: "23. ¿Qué documento prueba la causal de exoneración por fallecimiento de un familiar?",
+      opciones: ["Declaración juramentada", "Certificado de defunción", "Registro civil de nacimiento"],
+      correcta: 1
+    },
+    {
+      pregunta: "24. ¿Qué porcentaje de puestos debe contar con cubículos con ajustes razonables para personas con discapacidad?",
+      opciones: ["50 %", "70 %", "100 %"],
+      correcta: 1
+    },
+    {
+      pregunta: "25. ¿Cuál es el objetivo principal de la suspensión temporal de entrega de cédulas durante el proceso electoral?",
+      opciones: ["Garantizar transparencia y control electoral", "Reducir carga administrativa", "Facilitar la logística de escrutinios"],
+      correcta: 0
+    },
+    {
+      pregunta: "26. ¿Cuál de las siguientes actividades corresponde a la etapa de preparación y logística de las votaciones?",
+      opciones: ["Resolver reclamaciones de escrutinio", "Verificar condiciones de funcionamiento y accesibilidad de los puestos", "Consolidar resultados nacionales"],
+      correcta: 1
+    },
+    {
+      pregunta: "27. ¿Hasta cuántos días antes de la elección pueden suplirse las exoneraciones de jurados con ciudadanos de las bases de datos aportadas?",
+      opciones: ["5 días antes", "10 días antes", "15 días antes"],
+      correcta: 1
+    },
+    {
+      pregunta: "28. ¿Qué código de zona identifica los puestos de votación rurales?",
+      opciones: ["98", "90", "99"],
+      correcta: 2
+    },
+    {
+      pregunta: "29. ¿Cuál de las siguientes condiciones debe garantizarse al ubicar urnas y cubículos?",
+      opciones: ["Que las urnas estén cerca de la entrada principal", "Que el ciudadano identifique fácilmente dónde depositar su voto", "Que las mesas estén agrupadas en un mismo salón"],
+      correcta: 1
+    },
+    {
+      pregunta: "30. ¿Qué documento se utiliza para dejar constancia de los pliegos electorales producidos?",
+      opciones: ["E-20", "E-21", "E-29"],
+      correcta: 2
+    },
+    {
+      pregunta: "31. En un puesto con más de 50 mesas, ¿cuántas tarjetas Braille debe recibir como mínimo?",
+      opciones: ["Una", "Dos", "Tres"],
+      correcta: 1
+    },
+    {
+      pregunta: "32. ¿Qué debe coordinarse con la autoridad competente para proteger la transmisión de información electoral?",
+      opciones: ["La publicidad institucional", "La distribución de formularios E-14", "La seguridad informática del proceso electoral"],
+      correcta: 2
+    },
+    {
+      pregunta: "33. ¿Qué función cumplen los sobres de colores azul, vinotinto y gris entregados en el kit electoral?",
+      opciones: [
+        "Separar los votos válidos, nulos y en blanco al final de la jornada",
+        "Guardar y clasificar los ejemplares del acta de escrutinio",
+        "Empacar exclusivamente el material sobrante e inservible de la mesa"
+      ],
+      correcta: 1
+    },
+    {
+      pregunta: "34. ¿En qué situación u ocasión opera la división de una mesa de votación?",
+      opciones: [
+        "Cuando no asisten los jurados suficientes y se debe trasladar el censo a otra mesa",
+        "Cuando los testigos electorales solicitan auditar la mitad de los votos por separado",
+        "Cuando hay congestión extrema de electores que supera la capacidad de atención, dividiendo el censo para agilizar el flujo"
+      ],
+      correcta: 2
+    },
+    {
+      pregunta: "35. ¿Cómo y en qué momento se lleva a cabo la división de una mesa de votación?",
+      opciones: [
+        "Durante la jornada, previa autorización del delegado, dividiendo físicamente la fila, la lista de sufragantes (E-10) y el registro (E-11) usando material de contingencia",
+        "Se realiza un día antes, asignando dos kits electorales diferentes desde la Registraduría",
+        "Al finalizar la jornada, separando los votos en dos urnas antes de realizar el preconteo"
+      ],
+      correcta: 0
+    },
+    {
+      pregunta: "36. ¿Cuál es la función principal de los formularios E-10 y E-11 en la mesa de votación?",
+      opciones: [
+        "El E-10 es la lista de candidatos inscritos y el E-11 es el acta oficial de escrutinio",
+        "El E-10 sirve para el conteo final de votos y el E-11 para entregar el material al delegado",
+        "El E-10 es la lista de sufragantes y el E-11 es el registro de los votantes"
+      ],
+      correcta: 2
+    },
+    {
+      pregunta: "37. ¿A qué hora debe iniciar el proceso de instalación de la mesa y a qué hora comienza formalmente la jornada de votación para los ciudadanos?",
+      opciones: [
+        "Instalación a las 7:00 a. m. y la jornada de votación inicia a las 8:00 a. m.",
+        "Instalación a las 7:30 a. m. y votación a las 8:30 a. m.",
+        "Instalación a las 8:00 a. m. y votación a las 9:00 a. m."
+      ],
+      correcta: 0
+    },
+    {
+      pregunta: "38. ¿Cuál es la función principal de los testigos electorales durante la jornada de votación?",
+      opciones: [
+        "Reemplazar a los jurados de votación si estos no asisten al puesto",
+        "Vigilar el proceso electoral y formular reclamaciones para garantizar la transparencia de las votaciones y los escrutinios",
+        "Orientar a los votantes en los cubículos sobre cómo marcar correctamente la tarjeta electoral"
+      ],
+      correcta: 1
+    },
+    {
+      pregunta: "39. ¿Se puede instalar o abrir la mesa de votación si no hay presencia de testigos electorales?",
+      opciones: [
+        "No, la mesa debe esperar obligatoriamente a que llegue al menos un testigo electoral acreditado",
+        "Sí, pero solo si el delegado de la Registraduría asume temporalmente la función del testigo",
+        "Sí, la inasistencia de los testigos electorales no impide la instalación de la mesa ni el inicio de las votaciones"
+      ],
+      correcta: 2
+    },
+    {
+      pregunta: "40. ¿A partir de qué hora deben ingresar los testigos electorales a los puestos de votación?",
+      opciones: [
+        "Desde las 7:00 a. m., para poder observar el proceso de instalación de la mesa de votación y la revisión del kit",
+        "A las 8:00 a. m., ingresando al mismo tiempo que los primeros ciudadanos votantes",
+        "A las 4:00 p. m., únicamente para vigilar el conteo de votos y el inicio del escrutinio"
+      ],
+      correcta: 0
+    }
+  ];
 
     function login() {
       const password = document.getElementById('adminPassword').value;
