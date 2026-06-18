@@ -448,11 +448,14 @@
       try {
         const response = await fetch('/.netlify/functions/obtener-config');
         const data = await response.json();
+        console.log('Datos recibidos del servidor:', data);
         if (data.fechaInicio) {
           fechaInicio = new Date(data.fechaInicio);
+          console.log('Fecha de inicio cargada:', fechaInicio);
         }
         if (data.fechaFin) {
           fechaFin = new Date(data.fechaFin);
+          console.log('Fecha de fin cargada:', fechaFin);
         }
         fechasCargadas = true;
       } catch (error) {
@@ -467,9 +470,11 @@
       // TEMPORIZADOR Y VERIFICACIÓN DE FECHAS
       setInterval(() => {
         const ahora = new Date();
+        console.log('Ahora:', ahora, 'Inicio:', fechaInicio, 'Fin:', fechaFin);
         
         // Verificar si estamos antes de la fecha de inicio
         if (ahora < fechaInicio) {
+          console.log('Antes de fecha de inicio');
           if (!examenFinalizado) {
             examenFinalizado = true;
             const tiempoInicio = fechaInicio.toLocaleString('es-ES');
