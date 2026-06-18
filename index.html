@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluación de Certificación</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .pregunta {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    input[type=text] {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #temporizador {
+      color: red;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    #resultado {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loginCedula">
+
+    <h2>Validación de ingreso</h2>
+
+    <p>Ingrese su número de cédula:</p>
+
+    <input type="text" id="cedulaIngreso" placeholder="Número de cédula">
+
+    <br><br>
+
+    <button onclick="validarCedula()">
+      Ingresar al examen
+    </button>
+
+  </div>
+
+  <div id="contenidoExamen" style="display:none;">
+
+    <!-- Todo tu examen aquí -->
+    <h1>Evaluación de Registraduria Ponedera</h1>
+
+    <input type="hidden" id="documento">
+    <h2 id="temporizador"></h2>
+
+    <div class="pregunta">
+      <label><strong>Nombre completo</strong></label>
+      <br><br>
+      <input type="text" id="nombre">
+
+    </div>
+
+    <form id="examen">
+      <div id="preguntasContainer"></div>
+      <button type="button" onclick="calificar()">
+        Enviar Evaluación
+      </button>
+    </form>
+
+    <div id="resultado"></div>
+
+  </div>
+
+  <script>
+    // Base de datos de todas las preguntas (40 preguntas)
+    const todasLasPreguntas = [
+      {
+        pregunta: "1. ¿Cuál es la finalidad principal de dejar en blanco las casillas sin votación en el formulario E-14?",
+        opciones: [
+          "Reducir el uso de tinta en el formulario",
+          "Facilitar la verificación y evitar interpretaciones erróneas durante los escrutinios",
+          "Permitir correcciones posteriores por parte de los claveros"
+        ],
+        correcta: 1
+      },
+      {
+        pregunta: "2. ¿Qué formulario se utiliza para registrar el ingreso y retiro de documentos en el arca triclave?",
+        opciones: ["E-17", "E-21", "E-20"],
+        correcta: 2
+      },
+      {
+        pregunta: "3. ¿Cuál es la responsabilidad del delegado respecto a las urnas y cubículos antes de la jornada electoral?",
+        opciones: [
+          "Verificar cantidad, estado físico y correcta disposición",
+          "Numerarlos según la cantidad de votantes",
+          "Sellarlos con anticipación"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "4. Según el Código Electoral, ¿cuántos días antes de la elección debe expedirse la resolución de designación de jurados?",
+        opciones: ["10 días", "15 días", "30 días"],
+        correcta: 1
+      },
+      {
+        pregunta: "5. Una exoneración de jurado presentada después de la elección corresponde a:",
+        opciones: ["Exoneración con reemplazo", "Exoneración de la sanción", "Exoneración administrativa"],
+        correcta: 1
+      },
+      {
+        pregunta: "6. ¿Qué autoridad designa las comisiones escrutadoras distritales, municipales y zonales?",
+        opciones: [
+          "Los Tribunales Superiores de Distrito Judicial en Sala Plena",
+          "La Registraduría Nacional",
+          "El Consejo Nacional Electoral"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "7. ¿Cuál de las siguientes causales permite solicitar la exoneración como jurado de votación?",
+        opciones: ["Ser estudiante universitario", "No residir en el lugar donde fue designado", "Trabajar el día de la elección"],
+        correcta: 1
+      },
+      {
+        pregunta: "8. ¿Con qué documento se acredita la causal de no residencia para exonerarse como jurado?",
+        opciones: ["Recibo de servicio público", "Certificado laboral", "Certificación de vecindad expedida por autoridad competente"],
+        correcta: 2
+      },
+      {
+        pregunta: "9. Sin la credencial expedida por la autoridad electoral, los testigos electorales:",
+        opciones: ["Pueden actuar con autorización verbal", "No pueden ejercer sus funciones", "Solo pueden observar sin intervenir"],
+        correcta: 1
+      },
+      {
+        pregunta: "10. ¿Cuál es la función de los traductores de lengua nativa autorizados en algunas circunscripciones?",
+        opciones: ["Apoyar el escrutinio auxiliar", "Orientar a ciudadanos que no hablan español", "Reemplazar jurados ausentes"],
+        correcta: 1
+      },
+      {
+        pregunta: "11. ¿Qué significa el código de zona 90 dentro de la Divipole?",
+        opciones: ["Zona rural", "Puesto censo", "Cárcel"],
+        correcta: 1
+      },
+      {
+        pregunta: "12. ¿Qué código identifica los puestos de votación ubicados en establecimientos carcelarios?",
+        opciones: ["90", "98", "99"],
+        correcta: 1
+      },
+      {
+        pregunta: "13. ¿Qué principio se protege al ubicar los cubículos de manera que nadie observe al elector?",
+        opciones: ["Voto secreto", "Publicidad electoral", "Transparencia administrativa"],
+        correcta: 0
+      },
+      {
+        pregunta: "14. ¿Cuál es el propósito de ubicar las primeras mesas cerca de las salidas del puesto?",
+        opciones: ["Facilitar el escrutinio", "Evitar congestiones en el ingreso de votantes", "Optimizar la transmisión de resultados"],
+        correcta: 1
+      },
+      {
+        pregunta: "15. ¿Qué ley establece la obligación de disponer mobiliario para jurados, testigos y observadores?",
+        opciones: ["Ley 1475 de 2011", "Ley 1227 de 2008", "Ley 996 de 2005"],
+        correcta: 1
+      },
+      {
+        pregunta: "16. ¿Cuál de los siguientes corresponde a un kit departamental?",
+        opciones: [
+          "Material de apoyo para acondicionamiento de puestos y comisiones escrutadoras",
+          "Material exclusivo para jurados de mesa",
+          "Tarjetas electorales para votantes"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "17. ¿Qué formulario constituye la constancia de entrega de documentos electorales?",
+        opciones: ["E-17", "E-19", "E-29"],
+        correcta: 0
+      },
+      {
+        pregunta: "18. ¿Qué formulario corresponde al recibo de documentos electorales del puesto de votación?",
+        opciones: ["E-17", "E-19", "E-20"],
+        correcta: 1
+      },
+      {
+        pregunta: "19. ¿Cuántas tarjetas Braille debe recibir un puesto de votación como mínimo?",
+        opciones: ["Dos por mesa", "Una por puesto", "Una por cada 10 mesas"],
+        correcta: 1
+      },
+      {
+        pregunta: "20. ¿Qué debe hacer el registrador ad hoc si detecta faltantes en el kit municipal?",
+        opciones: ["Esperar la jornada electoral", "Informar inmediatamente al proveedor o coordinador electoral", "Reemplazar el material con recursos propios"],
+        correcta: 1
+      },
+      {
+        pregunta: "21. En municipios zonificados, ¿dónde se reciben normalmente los kits de mesa?",
+        opciones: ["Directamente en los puestos de votación el día de la elección", "En la alcaldía municipal", "En la gobernación"],
+        correcta: 0
+      },
+      {
+        pregunta: "22. ¿Cuál es una prioridad en la gestión de apoyo de las alcaldías?",
+        opciones: ["Contratación de personal temporal", "Transporte de kits y delegados hacia corregimientos", "Publicidad institucional"],
+        correcta: 1
+      },
+      {
+        pregunta: "23. ¿Qué comisión coordina actividades y compromisos entre entidades para garantizar los comicios?",
+        opciones: ["Comisión Nacional del Servicio Civil", "Comisión Municipal de Coordinación y Seguimiento a los Procesos Electorales", "Comisión de Garantías Partidistas"],
+        correcta: 1
+      },
+      {
+        pregunta: "24. ¿Qué entidad debe coordinar la custodia de kits electorales y pliegos electorales?",
+        opciones: ["La Fuerza Pública", "Los jurados de votación", "Los testigos electorales"],
+        correcta: 0
+      },
+      {
+        pregunta: "25. ¿Cuál es una función de las Comisiones de Coordinación y Seguimiento según el Decreto 800 de 2025?",
+        opciones: ["Designar jurados de votación", "Coordinar acciones para la transparencia del sufragio y los escrutinios", "Resolver demandas electorales"],
+        correcta: 1
+      },
+      {
+        pregunta: "26. ¿Quién reconstruye la comisión escrutadora cuando un escrutador falta después de iniciado el escrutinio?",
+        opciones: ["El registrador municipal", "El Consejo Nacional Electoral", "El juez clavero"],
+        correcta: 2
+      },
+      {
+        pregunta: "27. ¿Qué documento prueba la causal de exoneración por fallecimiento de un familiar?",
+        opciones: ["Declaración juramentada", "Certificado de defunción", "Registro civil de nacimiento"],
+        correcta: 1
+      },
+      {
+        pregunta: "28. ¿Qué porcentaje de puestos debe contar con cubículos con ajustes razonables para personas con discapacidad?",
+        opciones: ["50 %", "70 %", "100 %"],
+        correcta: 1
+      },
+      {
+        pregunta: "29. ¿Cuál es el objetivo principal de la suspensión temporal de entrega de cédulas durante el proceso electoral?",
+        opciones: ["Garantizar transparencia y control electoral", "Reducir carga administrativa", "Facilitar la logística de escrutinios"],
+        correcta: 0
+      },
+      {
+        pregunta: "30. ¿Cuál de las siguientes actividades corresponde a la etapa de preparación y logística de las votaciones?",
+        opciones: ["Resolver reclamaciones de escrutinio", "Verificar condiciones de funcionamiento y accesibilidad de los puestos", "Consolidar resultados nacionales"],
+        correcta: 1
+      },
+      {
+        pregunta: "31. ¿Hasta cuántos días antes de la elección pueden suplirse las exoneraciones de jurados con ciudadanos de las bases de datos aportadas?",
+        opciones: ["5 días antes", "10 días antes", "15 días antes"],
+        correcta: 1
+      },
+      {
+        pregunta: "32. ¿Cuál es la principal finalidad de la Divipole para un registrador ad hoc?",
+        opciones: ["Determinar el número de candidatos inscritos", "Comprender la organización administrativa y electoral del territorio", "Asignar jurados de votación"],
+        correcta: 1
+      },
+      {
+        pregunta: "33. ¿Qué código de zona identifica los puestos de votación rurales?",
+        opciones: ["98", "90", "99"],
+        correcta: 2
+      },
+      {
+        pregunta: "34. ¿Cuál de las siguientes condiciones debe garantizarse al ubicar urnas y cubículos?",
+        opciones: ["Que las urnas estén cerca de la entrada principal", "Que el ciudadano identifique fácilmente dónde depositar su voto", "Que las mesas estén agrupadas en un mismo salón"],
+        correcta: 1
+      },
+      {
+        pregunta: "35. ¿Qué documento se utiliza para dejar constancia de los pliegos electorales producidos?",
+        opciones: ["E-20", "E-21", "E-29"],
+        correcta: 2
+      },
+      {
+        pregunta: "36. ¿Cuál es el color que identifica los sobres para cadena de custodia de votos?",
+        opciones: ["Azul", "Gris", "Amarillo"],
+        correcta: 1
+      },
+      {
+        pregunta: "37. En un puesto con más de 50 mesas, ¿cuántas tarjetas Braille debe recibir como mínimo?",
+        opciones: ["Una", "Dos", "Tres"],
+        correcta: 1
+      },
+      {
+        pregunta: "38. ¿Qué debe hacer el registrador ad hoc respecto a las comisiones municipales de coordinación electoral?",
+        opciones: ["Revisar compromisos previos y participar activamente en ellas", "Limitarse a recibir las actas finales", "Delegar su participación en los jurados"],
+        correcta: 0
+      },
+      {
+        pregunta: "39. ¿Cuál es una función de las comisiones de coordinación electoral relacionada con el orden público?",
+        opciones: ["Designar comandantes de policía", "Recomendar traslados de mesas por motivos de fuerza mayor u orden público", "Autorizar campañas políticas"],
+        correcta: 1
+      },
+      {
+        pregunta: "40. ¿Qué debe coordinarse con la autoridad competente para proteger la transmisión de información electoral?",
+        opciones: ["La publicidad institucional", "La distribución de formularios E-14", "La seguridad informática del proceso electoral"],
+        correcta: 2
+      }
+    ];
+
+    let preguntasSeleccionadas = [];
+    const NUMERO_PREGUNTAS = 20;
+
+    // Función para mezclar array (Fisher-Yates shuffle)
+    function mezclarArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Función para seleccionar preguntas aleatorias
+    function seleccionarPreguntasAleatorias() {
+      const preguntasMezcladas = mezclarArray([...todasLasPreguntas]);
+      preguntasSeleccionadas = preguntasMezcladas.slice(0, NUMERO_PREGUNTAS);
+    }
+
+    // Función para renderizar las preguntas
+    function renderizarPreguntas() {
+      const container = document.getElementById('preguntasContainer');
+      container.innerHTML = '';
+      
+      preguntasSeleccionadas.forEach((pregunta, index) => {
+        const div = document.createElement('div');
+        div.className = 'pregunta';
+        
+        // Reemplazar el número original de la pregunta con el número secuencial (1-20)
+        const preguntaConNumero = pregunta.pregunta.replace(/^\d+\.\s*/, `${index + 1}. `);
+        
+        let opcionesHTML = '';
+        pregunta.opciones.forEach((opcion, opcionIndex) => {
+          const valor = opcionIndex === pregunta.correcta ? '1' : '0';
+          opcionesHTML += `<input type="radio" name="p${index}" value="${valor}"> ${opcion}<br>`;
+        });
+        
+        div.innerHTML = `
+          <p>${preguntaConNumero}</p>
+          ${opcionesHTML}
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+
+    async function validarCedula() {
+      const cedula =
+        document.getElementById(
+          "cedulaIngreso"
+        ).value.replace(/\D/g, '');
+      if (cedula === "") {
+        alert(
+          "Ingrese una cédula"
+        );
+        return;
+      }
+      
+      // Verificar si el usuario ya existe en MongoDB
+      try {
+        const response = await fetch('/.netlify/functions/registrar-usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cedula })
+        });
+        
+        const data = await response.json();
+        
+        if (response.status === 409) {
+          document.body.innerHTML = `
+          <h1>Evaluación ya presentada</h1>
+
+          <p>
+          La cédula ${cedula}
+          ya realizó esta evaluación.
+          </p>`;
+          return;
+        }
+        
+        if (!response.ok) {
+          alert('Error al registrar usuario: ' + (data.error || 'Error desconocido'));
+          return;
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Por favor intente nuevamente.');
+        return;
+      }
+      
+      document.getElementById(
+        "loginCedula"
+      ).style.display = "none";
+      document.getElementById(
+        "contenidoExamen"
+      ).style.display = "block";
+      document.getElementById(
+        "documento"
+      ).value = cedula;
+      
+      // Seleccionar y renderizar preguntas aleatorias
+      seleccionarPreguntasAleatorias();
+      renderizarPreguntas();
+    }
+    window.onload = function() {
+      document.getElementById(
+        "contenidoExamen"
+      ).style.display = "none";
+      document.getElementById(
+        "loginCedula"
+      ).style.display = "block";
+    }
+    // FECHA Y HORA DE CIERRE (se obtiene de MongoDB via Netlify Function)
+    let fechaFin = new Date("2026-06-17T19:59:59"); // Valor por defecto
+    
+    // Obtener fecha de cierre del servidor
+    async function obtenerFechaCierre() {
+      try {
+        const response = await fetch('/.netlify/functions/obtener-config');
+        const data = await response.json();
+        if (data.fechaCierre) {
+          fechaFin = new Date(data.fechaCierre);
+        }
+      } catch (error) {
+        console.error('Error al obtener fecha de cierre:', error);
+      }
+    }
+    
+    // Llamar a la función al cargar
+    obtenerFechaCierre();
+    let examenFinalizado = false;
+    // TEMPORIZADOR
+    setInterval(() => {
+      const ahora = new Date();
+      const restante =
+        fechaFin - ahora;
+      if (restante <= 0) {
+        if (!examenFinalizado) {
+          examenFinalizado = true;
+          document.body.innerHTML =
+            "<h1>Tiempo agotado</h1>";
+        }
+        return;
+      }
+      const horas =
+        Math.floor(restante / 1000 / 60 / 60);
+      const minutos =
+        Math.floor(restante / 1000 / 60) % 60;
+      const segundos =
+        Math.floor(restante / 1000) % 60;
+      document.getElementById(
+          "temporizador"
+        ).innerHTML =
+        `Tiempo restante:
+    ${horas}h ${minutos}m ${segundos}s`;
+    }, 1000);
+    // DETECTAR CAMBIO DE PESTAÑA
+    document.addEventListener(
+      "visibilitychange",
+      function() {
+        if (document.hidden) {
+          examenFinalizado = true;
+          document.body.innerHTML = `
+        <h1>
+        Evaluación anulada
+        </h1>
+
+        <p>
+        Se detectó salida de la página.
+        </p>`;
+        }
+      });
+
+    function calificar() {
+      if (examenFinalizado) return;
+      const nombre =
+        document.getElementById(
+          "nombre"
+        ).value.trim();
+      const documento =
+        document.getElementById(
+          "documento"
+        ).value.trim();
+      if (nombre === "") {
+        alert(
+          "Ingrese su nombre"
+        );
+        return;
+      }
+      let total = 0;
+      const preguntas = NUMERO_PREGUNTAS;
+      for (let i = 0; i < preguntas; i++) {
+        const respuesta =
+          document.querySelector(
+            'input[name="p' + i + '"]:checked'
+          );
+        if (respuesta) {
+          total +=
+            parseInt(
+              respuesta.value
+            );
+        }
+      }
+      const nota =
+        (total / preguntas) * 100;
+      
+      let mensaje =
+        `<h2>Resultado</h2>
+
+    <p>
+    <strong>${nombre}</strong>
+    </p>
+
+    <p>
+    Cédula:
+    ${documento}
+    </p>
+
+    <p>
+    Nota:
+    ${nota.toFixed(0)}/100
+    </p>`;
+      if (nota >= 80) {
+        mensaje +=
+          `<h2>
+        🎉 FELICITACIONES 🎉
+        </h2>
+
+        <p>
+        Usted será certificado.
+        </p>`;
+      } else {
+        mensaje +=
+          `<p>
+        No alcanzó el puntaje mínimo
+        para certificación.
+        </p>`;
+      }
+      document.getElementById(
+        "resultado"
+      ).innerHTML = mensaje;
+      document.getElementById(
+        "examen"
+      ).style.display = "none";
+    }
+  </script>
+
+</body>
+
+</html>

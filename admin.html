@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Evaluación</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    h1, h2, h3 {
+      color: #333;
+    }
+
+    .login-section {
+      max-width: 400px;
+      margin: 100px auto;
+    }
+
+    input[type="password"],
+    input[type="datetime-local"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button.secondary {
+      background-color: #6c757d;
+    }
+
+    button.secondary:hover {
+      background-color: #545b62;
+    }
+
+    button.success {
+      background-color: #28a745;
+    }
+
+    button.success:hover {
+      background-color: #218838;
+    }
+
+    .pregunta-item {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+    }
+
+    .pregunta-text {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .opcion {
+      margin: 5px 0;
+      padding: 5px;
+    }
+
+    .opcion.correcta {
+      background-color: #d4edda;
+      border-left: 4px solid #28a745;
+      padding-left: 10px;
+    }
+
+    .opcion.incorrecta {
+      background-color: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding-left: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .tab-buttons {
+      margin-bottom: 20px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-buttons button.active {
+      background-color: #0056b3;
+    }
+
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-ingresando {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .alert-box {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login Section -->
+  <div id="loginSection" class="login-section container">
+    <h2>Acceso Administrativo</h2>
+    <p>Ingrese su contraseña para acceder al panel de administración</p>
+    <input type="password" id="adminPassword" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none;">
+    <div class="container">
+      <h1>Panel de Administración - Evaluación</h1>
+      <button onclick="logout()" class="secondary">Cerrar Sesión</button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="container">
+      <div class="tab-buttons">
+        <button onclick="showTab('respuestas')" class="active" id="tabRespuestas">Respuestas Correctas</button>
+        <button onclick="showTab('config')" id="tabConfig">Configuración</button>
+        <button onclick="showTab('usuarios')" id="tabUsuarios">Usuarios Ingresados</button>
+      </div>
+
+      <!-- Tab: Respuestas Correctas -->
+      <div id="respuestas" class="tab-content active">
+        <h2>Respuestas Correctas de las Preguntas</h2>
+        <div id="respuestasContainer"></div>
+      </div>
+
+      <!-- Tab: Configuración -->
+      <div id="config" class="tab-content">
+        <h2>Configuración del Examen</h2>
+        
+        <div class="pregunta-item">
+          <h3>Tiempo de Disponibilidad</h3>
+          <p>Configure la fecha y hora de cierre del examen:</p>
+          <input type="datetime-local" id="fechaCierre">
+          <button onclick="guardarFechaCierre()" class="success">Guardar Fecha de Cierre</button>
+          <div id="fechaAlert" class="alert-box"></div>
+        </div>
+
+        <div class="pregunta-item">
+          <h3>Configuración Actual</h3>
+          <p><strong>Fecha de cierre actual:</strong> <span id="fechaCierreActual">Cargando...</span></p>
+          <p><strong>Número de preguntas:</strong> 20 (seleccionadas aleatoriamente de 40)</p>
+          <p><strong>Puntaje mínimo para certificación:</strong> 80/100</p>
+        </div>
+      </div>
+
+      <!-- Tab: Usuarios Ingresados -->
+      <div id="usuarios" class="tab-content">
+        <h2>Usuarios que han Ingresado al Examen</h2>
+        <button onclick="cargarUsuarios()" class="secondary">Actualizar Lista</button>
+        <button onclick="limpiarUsuarios()" style="background-color: #dc3545;">Limpiar Registros</button>
+        
+        <div id="usuariosContainer">
+          <table>
+            <thead>
+              <tr>
+                <th>Cédula</th>
+                <th>Estado</th>
+                <th>Fecha de Ingreso</th>
+              </tr>
+            </thead>
+            <tbody id="usuariosTableBody">
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="noUsuarios" style="display:none; text-align:center; padding: 20px;">
+          <p>No hay usuarios registrados aún.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Contraseña del administración (puedes cambiarla)
+    const ADMIN_PASSWORD = "admin123";
+
+    // Preguntas con respuestas correctas (mismas que en index.html)
+    const todasLasPreguntas = [
+      {
+        pregunta: "1. ¿Cuál es la finalidad principal de dejar en blanco las casillas sin votación en el formulario E-14?",
+        opciones: [
+          "Reducir el uso de tinta en el formulario",
+          "Facilitar la verificación y evitar interpretaciones erróneas durante los escrutinios",
+          "Permitir correcciones posteriores por parte de los claveros"
+        ],
+        correcta: 1
+      },
+      {
+        pregunta: "2. ¿Qué formulario se utiliza para registrar el ingreso y retiro de documentos en el arca triclave?",
+        opciones: ["E-17", "E-21", "E-20"],
+        correcta: 2
+      },
+      {
+        pregunta: "3. ¿Cuál es la responsabilidad del delegado respecto a las urnas y cubículos antes de la jornada electoral?",
+        opciones: [
+          "Verificar cantidad, estado físico y correcta disposición",
+          "Numerarlos según la cantidad de votantes",
+          "Sellarlos con anticipación"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "4. Según el Código Electoral, ¿cuántos días antes de la elección debe expedirse la resolución de designación de jurados?",
+        opciones: ["10 días", "15 días", "30 días"],
+        correcta: 1
+      },
+      {
+        pregunta: "5. Una exoneración de jurado presentada después de la elección corresponde a:",
+        opciones: ["Exoneración con reemplazo", "Exoneración de la sanción", "Exoneración administrativa"],
+        correcta: 1
+      },
+      {
+        pregunta: "6. ¿Qué autoridad designa las comisiones escrutadoras distritales, municipales y zonales?",
+        opciones: [
+          "Los Tribunales Superiores de Distrito Judicial en Sala Plena",
+          "La Registraduría Nacional",
+          "El Consejo Nacional Electoral"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "7. ¿Cuál de las siguientes causales permite solicitar la exoneración como jurado de votación?",
+        opciones: ["Ser estudiante universitario", "No residir en el lugar donde fue designado", "Trabajar el día de la elección"],
+        correcta: 1
+      },
+      {
+        pregunta: "8. ¿Con qué documento se acredita la causal de no residencia para exonerarse como jurado?",
+        opciones: ["Recibo de servicio público", "Certificado laboral", "Certificación de vecindad expedida por autoridad competente"],
+        correcta: 2
+      },
+      {
+        pregunta: "9. Sin la credencial expedida por la autoridad electoral, los testigos electorales:",
+        opciones: ["Pueden actuar con autorización verbal", "No pueden ejercer sus funciones", "Solo pueden observar sin intervenir"],
+        correcta: 1
+      },
+      {
+        pregunta: "10. ¿Cuál es la función de los traductores de lengua nativa autorizados en algunas circunscripciones?",
+        opciones: ["Apoyar el escrutinio auxiliar", "Orientar a ciudadanos que no hablan español", "Reemplazar jurados ausentes"],
+        correcta: 1
+      },
+      {
+        pregunta: "11. ¿Qué significa el código de zona 90 dentro de la Divipole?",
+        opciones: ["Zona rural", "Puesto censo", "Cárcel"],
+        correcta: 1
+      },
+      {
+        pregunta: "12. ¿Qué código identifica los puestos de votación ubicados en establecimientos carcelarios?",
+        opciones: ["90", "98", "99"],
+        correcta: 1
+      },
+      {
+        pregunta: "13. ¿Qué principio se protege al ubicar los cubículos de manera que nadie observe al elector?",
+        opciones: ["Voto secreto", "Publicidad electoral", "Transparencia administrativa"],
+        correcta: 0
+      },
+      {
+        pregunta: "14. ¿Cuál es el propósito de ubicar las primeras mesas cerca de las salidas del puesto?",
+        opciones: ["Facilitar el escrutinio", "Evitar congestiones en el ingreso de votantes", "Optimizar la transmisión de resultados"],
+        correcta: 1
+      },
+      {
+        pregunta: "15. ¿Qué ley establece la obligación de disponer mobiliario para jurados, testigos y observadores?",
+        opciones: ["Ley 1475 de 2011", "Ley 1227 de 2008", "Ley 996 de 2005"],
+        correcta: 1
+      },
+      {
+        pregunta: "16. ¿Cuál de los siguientes corresponde a un kit departamental?",
+        opciones: [
+          "Material de apoyo para acondicionamiento de puestos y comisiones escrutadoras",
+          "Material exclusivo para jurados de mesa",
+          "Tarjetas electorales para votantes"
+        ],
+        correcta: 0
+      },
+      {
+        pregunta: "17. ¿Qué formulario constituye la constancia de entrega de documentos electorales?",
+        opciones: ["E-17", "E-19", "E-29"],
+        correcta: 0
+      },
+      {
+        pregunta: "18. ¿Qué formulario corresponde al recibo de documentos electorales del puesto de votación?",
+        opciones: ["E-17", "E-19", "E-20"],
+        correcta: 1
+      },
+      {
+        pregunta: "19. ¿Cuántas tarjetas Braille debe recibir un puesto de votación como mínimo?",
+        opciones: ["Dos por mesa", "Una por puesto", "Una por cada 10 mesas"],
+        correcta: 1
+      },
+      {
+        pregunta: "20. ¿Qué debe hacer el registrador ad hoc si detecta faltantes en el kit municipal?",
+        opciones: ["Esperar la jornada electoral", "Informar inmediatamente al proveedor o coordinador electoral", "Reemplazar el material con recursos propios"],
+        correcta: 1
+      },
+      {
+        pregunta: "21. En municipios zonificados, ¿dónde se reciben normalmente los kits de mesa?",
+        opciones: ["Directamente en los puestos de votación el día de la elección", "En la alcaldía municipal", "En la gobernación"],
+        correcta: 0
+      },
+      {
+        pregunta: "22. ¿Cuál es una prioridad en la gestión de apoyo de las alcaldías?",
+        opciones: ["Contratación de personal temporal", "Transporte de kits y delegados hacia corregimientos", "Publicidad institucional"],
+        correcta: 1
+      },
+      {
+        pregunta: "23. ¿Qué comisión coordina actividades y compromisos entre entidades para garantizar los comicios?",
+        opciones: ["Comisión Nacional del Servicio Civil", "Comisión Municipal de Coordinación y Seguimiento a los Procesos Electorales", "Comisión de Garantías Partidistas"],
+        correcta: 1
+      },
+      {
+        pregunta: "24. ¿Qué entidad debe coordinar la custodia de kits electorales y pliegos electorales?",
+        opciones: ["La Fuerza Pública", "Los jurados de votación", "Los testigos electorales"],
+        correcta: 0
+      },
+      {
+        pregunta: "25. ¿Cuál es una función de las Comisiones de Coordinación y Seguimiento según el Decreto 800 de 2025?",
+        opciones: ["Designar jurados de votación", "Coordinar acciones para la transparencia del sufragio y los escrutinios", "Resolver demandas electorales"],
+        correcta: 1
+      },
+      {
+        pregunta: "26. ¿Quién reconstruye la comisión escrutadora cuando un escrutador falta después de iniciado el escrutinio?",
+        opciones: ["El registrador municipal", "El Consejo Nacional Electoral", "El juez clavero"],
+        correcta: 2
+      },
+      {
+        pregunta: "27. ¿Qué documento prueba la causal de exoneración por fallecimiento de un familiar?",
+        opciones: ["Declaración juramentada", "Certificado de defunción", "Registro civil de nacimiento"],
+        correcta: 1
+      },
+      {
+        pregunta: "28. ¿Qué porcentaje de puestos debe contar con cubículos con ajustes razonables para personas con discapacidad?",
+        opciones: ["50 %", "70 %", "100 %"],
+        correcta: 1
+      },
+      {
+        pregunta: "29. ¿Cuál es el objetivo principal de la suspensión temporal de entrega de cédulas durante el proceso electoral?",
+        opciones: ["Garantizar transparencia y control electoral", "Reducir carga administrativa", "Facilitar la logística de escrutinios"],
+        correcta: 0
+      },
+      {
+        pregunta: "30. ¿Cuál de las siguientes actividades corresponde a la etapa de preparación y logística de las votaciones?",
+        opciones: ["Resolver reclamaciones de escrutinio", "Verificar condiciones de funcionamiento y accesibilidad de los puestos", "Consolidar resultados nacionales"],
+        correcta: 1
+      },
+      {
+        pregunta: "31. ¿Hasta cuántos días antes de la elección pueden suplirse las exoneraciones de jurados con ciudadanos de las bases de datos aportadas?",
+        opciones: ["5 días antes", "10 días antes", "15 días antes"],
+        correcta: 1
+      },
+      {
+        pregunta: "32. ¿Cuál es la principal finalidad de la Divipole para un registrador ad hoc?",
+        opciones: ["Determinar el número de candidatos inscritos", "Comprender la organización administrativa y electoral del territorio", "Asignar jurados de votación"],
+        correcta: 1
+      },
+      {
+        pregunta: "33. ¿Qué código de zona identifica los puestos de votación rurales?",
+        opciones: ["98", "90", "99"],
+        correcta: 2
+      },
+      {
+        pregunta: "34. ¿Cuál de las siguientes condiciones debe garantizarse al ubicar urnas y cubículos?",
+        opciones: ["Que las urnas estén cerca de la entrada principal", "Que el ciudadano identifique fácilmente dónde depositar su voto", "Que las mesas estén agrupadas en un mismo salón"],
+        correcta: 1
+      },
+      {
+        pregunta: "35. ¿Qué documento se utiliza para dejar constancia de los pliegos electorales producidos?",
+        opciones: ["E-20", "E-21", "E-29"],
+        correcta: 2
+      },
+      {
+        pregunta: "36. ¿Cuál es el color que identifica los sobres para cadena de custodia de votos?",
+        opciones: ["Azul", "Gris", "Amarillo"],
+        correcta: 1
+      },
+      {
+        pregunta: "37. En un puesto con más de 50 mesas, ¿cuántas tarjetas Braille debe recibir como mínimo?",
+        opciones: ["Una", "Dos", "Tres"],
+        correcta: 1
+      },
+      {
+        pregunta: "38. ¿Qué debe hacer el registrador ad hoc respecto a las comisiones municipales de coordinación electoral?",
+        opciones: ["Revisar compromisos previos y participar activamente en ellas", "Limitarse a recibir las actas finales", "Delegar su participación en los jurados"],
+        correcta: 0
+      },
+      {
+        pregunta: "39. ¿Cuál es una función de las comisiones de coordinación electoral relacionada con el orden público?",
+        opciones: ["Designar comandantes de policía", "Recomendar traslados de mesas por motivos de fuerza mayor u orden público", "Autorizar campañas políticas"],
+        correcta: 1
+      },
+      {
+        pregunta: "40. ¿Qué debe coordinarse con la autoridad competente para proteger la transmisión de información electoral?",
+        opciones: ["La publicidad institucional", "La distribución de formularios E-14", "La seguridad informática del proceso electoral"],
+        correcta: 2
+      }
+    ];
+
+    function login() {
+      const password = document.getElementById('adminPassword').value;
+      if (password === ADMIN_PASSWORD) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        cargarRespuestas();
+        cargarFechaCierre();
+        cargarUsuarios();
+      } else {
+        alert('Contraseña incorrecta');
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+    }
+
+    function showTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-buttons button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+    }
+
+    function cargarRespuestas() {
+      const container = document.getElementById('respuestasContainer');
+      container.innerHTML = '';
+
+      todasLasPreguntas.forEach((pregunta, index) => {
+        const div = document.createElement('div');
+        div.className = 'pregunta-item';
+
+        const preguntaSinNumero = pregunta.pregunta.replace(/^\d+\.\s*/, '');
+        
+        let opcionesHTML = '';
+        pregunta.opciones.forEach((opcion, opcionIndex) => {
+          const esCorrecta = opcionIndex === pregunta.correcta;
+          opcionesHTML += `
+            <div class="opcion ${esCorrecta ? 'correcta' : 'incorrecta'}">
+              ${esCorrecta ? '✓ ' : '✗ '}${opcion}
+            </div>
+          `;
+        });
+
+        div.innerHTML = `
+          <div class="pregunta-text">${index + 1}. ${preguntaSinNumero}</div>
+          ${opcionesHTML}
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    async function cargarFechaCierre() {
+      try {
+        // Obtener fecha de cierre del servidor
+        const response = await fetch('/.netlify/functions/obtener-config');
+        const data = await response.json();
+        
+        let fechaCierre = data.fechaCierre || "2026-06-17T19:59:59";
+
+        // Convertir a formato para el input datetime-local
+        const fecha = new Date(fechaCierre);
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        const hours = String(fecha.getHours()).padStart(2, '0');
+        const minutes = String(fecha.getMinutes()).padStart(2, '0');
+        
+        const formatoInput = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        document.getElementById('fechaCierre').value = formatoInput;
+        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+        
+      } catch (error) {
+        console.error('Error al cargar fecha de cierre:', error);
+        // Usar valor por defecto si hay error
+        const fecha = new Date("2026-06-17T19:59:59");
+        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+      }
+    }
+
+    async function guardarFechaCierre() {
+      const nuevaFecha = document.getElementById('fechaCierre').value;
+      if (!nuevaFecha) {
+        mostrarAlerta('error', 'Por favor seleccione una fecha y hora');
+        return;
+      }
+
+      try {
+        const response = await fetch('/.netlify/functions/guardar-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fechaCierre: nuevaFecha + ':00' })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          mostrarAlerta('error', 'Error al guardar: ' + (data.error || 'Error desconocido'));
+          return;
+        }
+        
+        // Actualizar display
+        const fecha = new Date(nuevaFecha);
+        document.getElementById('fechaCierreActual').textContent = fecha.toLocaleString('es-ES');
+        
+        mostrarAlerta('success', 'Fecha de cierre actualizada correctamente');
+        
+      } catch (error) {
+        console.error('Error:', error);
+        mostrarAlerta('error', 'Error de conexión al servidor');
+      }
+    }
+
+    function mostrarAlerta(tipo, mensaje) {
+      const alertDiv = document.getElementById('fechaAlert');
+      alertDiv.className = `alert-box alert-${tipo}`;
+      alertDiv.textContent = mensaje;
+      alertDiv.style.display = 'block';
+      
+      setTimeout(() => {
+        alertDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    async function cargarUsuarios() {
+      const tbody = document.getElementById('usuariosTableBody');
+      tbody.innerHTML = '';
+
+      try {
+        // Obtener usuarios del servidor
+        const response = await fetch('/.netlify/functions/listar-usuarios');
+        const data = await response.json();
+        
+        const usuarios = data.usuarios || [];
+
+        if (usuarios.length === 0) {
+          document.getElementById('noUsuarios').style.display = 'block';
+          document.getElementById('usuariosContainer').querySelector('table').style.display = 'none';
+        } else {
+          document.getElementById('noUsuarios').style.display = 'none';
+          document.getElementById('usuariosContainer').querySelector('table').style.display = 'table';
+
+          usuarios.forEach(usuario => {
+            const row = document.createElement('tr');
+            const fechaFormateada = new Date(usuario.fechaIngreso).toLocaleString('es-ES');
+            row.innerHTML = `
+              <td>${usuario.cedula}</td>
+              <td><span class="status-badge status-ingresando">${usuario.estado}</span></td>
+              <td>${fechaFormateada}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error al cargar usuarios:', error);
+        document.getElementById('noUsuarios').style.display = 'block';
+        document.getElementById('noUsuarios').querySelector('p').textContent = 'Error al cargar usuarios. Por favor intente nuevamente.';
+        document.getElementById('usuariosContainer').querySelector('table').style.display = 'none';
+      }
+    }
+
+    async function limpiarUsuarios() {
+      if (confirm('¿Está seguro de que desea limpiar todos los registros de usuarios? Esta acción no se puede deshacer.')) {
+        try {
+          const response = await fetch('/.netlify/functions/limpiar-usuarios', {
+            method: 'DELETE'
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            alert('Error al limpiar usuarios: ' + (data.error || 'Error desconocido'));
+            return;
+          }
+          
+          cargarUsuarios();
+          alert(`Registros eliminados correctamente (${data.eliminados} usuarios)`);
+          
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error de conexión al servidor');
+        }
+      }
+    }
+
+    // Cargar fecha actual al iniciar
+    window.onload = function() {
+      cargarFechaCierre();
+    }
+  </script>
+
+</body>
+
+</html>
